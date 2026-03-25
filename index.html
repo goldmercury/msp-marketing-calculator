@@ -367,7 +367,7 @@
             <div class="funnel-shape" id="shape-meetings"></div>
             <div class="fs-content">
               <div class="s-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-              <div class="s-info"><div class="s-num" id="o-meetings" aria-live="polite">--</div><div class="s-lbl">Meetings Booked</div></div>
+              <div class="s-info"><div class="s-num" id="o-meetings" aria-live="polite">--</div><div class="s-lbl">Meetings Booked</div><div class="s-lbl" id="meetings-breakdown" style="font-style:italic;margin-top:1px;color:var(--text-tertiary);"></div></div>
               <div class="s-cost" id="cost-meetings"></div>
             </div>
           </div>
@@ -507,7 +507,9 @@
     const regs = cpr > 0 ? Math.floor(ad / cpr) : 0;
     const att = Math.round(regs * attendRate);
     const nonAtt = regs - att;
-    const tm = att * amr + nonAtt * namr;
+    const mtgFromLive = att * amr;
+    const mtgFromFollowUp = nonAtt * namr;
+    const tm = mtgFromLive + mtgFromFollowUp;
     const cl = tm * closeRate;
     const cpm = tm > 0 ? ad / tm : 0;
     const ltv = mcv * lifespan;
@@ -519,6 +521,14 @@
     animateValue($('o-regs'), regs.toLocaleString());
     animateValue($('o-attendees'), att.toLocaleString());
     animateValue($('o-meetings'), tm < 10 ? tm.toFixed(1) : Math.round(tm).toLocaleString());
+
+    // Meetings breakdown: show where meetings come from
+    const bkdn = $('meetings-breakdown');
+    if (bkdn) {
+      const liveNum = mtgFromLive < 10 ? mtgFromLive.toFixed(1) : Math.round(mtgFromLive);
+      const fuNum = mtgFromFollowUp < 10 ? mtgFromFollowUp.toFixed(1) : Math.round(mtgFromFollowUp);
+      bkdn.textContent = liveNum + ' from live · ' + fuNum + ' from follow-up';
+    }
 
     // Clients with goal comparison
     const clDisplay = cl < 10 ? cl.toFixed(1) : Math.round(cl).toLocaleString();
@@ -540,8 +550,7 @@
 
     // Conversion rates between funnel stages
     $('rate-attend').textContent = (attendRate * 100).toFixed(0) + '% show rate';
-    const blendedPct = regs > 0 ? (tm / regs * 100) : 0;
-    $('rate-meetings').textContent = blendedPct.toFixed(1) + '% book meetings';
+    $('rate-meetings').textContent = (amr * 100).toFixed(0) + '% live + ' + (namr * 100).toFixed(0) + '% no-show';
     $('rate-clients').textContent = (closeRate * 100).toFixed(0) + '% close rate';
 
     // Cost annotations
