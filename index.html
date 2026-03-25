@@ -289,7 +289,7 @@
           <label class="slider-label" for="s-clients-goal">New clients per month <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">How many new managed service clients do you want to add each month? We reverse-engineer the exact funnel needed to deliver this number consistently.</span></span></label>
           <span class="slider-value gold" id="v-clients-goal" style="font-size:1.1rem;">4</span>
         </div>
-        <input type="range" min="1" max="12" value="4" id="s-clients-goal" class="filled gold" aria-label="New clients per month" oninput="update()">
+        <input type="range" min="1" max="12" value="4" id="s-clients-goal" class="filled gold" aria-label="New clients per month" oninput="update(true)">
       </div>
 
       <div class="section-divider"></div>
@@ -300,14 +300,14 @@
           <label class="slider-label" for="s-close">Meeting &rarr; Client close rate <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">What percentage of sales meetings convert into paying clients? 20-30% is typical for MSPs with a solid discovery and proposal process.</span></span></label>
           <span class="slider-value cyan" id="v-close">25%</span>
         </div>
-        <input type="range" min="10" max="50" value="25" id="s-close" class="filled" aria-label="Close rate percentage" oninput="update()">
+        <input type="range" min="10" max="50" value="25" id="s-close" class="filled" aria-label="Close rate percentage" oninput="update(false)">
       </div>
       <div class="slider-group">
         <div class="slider-header">
           <label class="slider-label" for="s-cpr">Cost per registration <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">Your ad cost per webinar sign-up. Campaigns typically start around $30-$40, but by month 3 this drops to $10-$15 as targeting optimises.</span></span></label>
           <span class="slider-value cyan" id="v-cpr">$40</span>
         </div>
-        <input type="range" min="5" max="50" value="40" id="s-cpr" class="filled" aria-label="Cost per registration" oninput="update()">
+        <input type="range" min="5" max="50" value="40" id="s-cpr" class="filled" aria-label="Cost per registration" oninput="update(false)">
         <div class="slider-note">Typically drops to $10-$15 within 3 months</div>
       </div>
       <div class="slider-group">
@@ -315,29 +315,29 @@
           <label class="slider-label" for="s-attend">Registration &rarr; Attendance <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">The percentage of registrants who show up live. Industry average is around 30% for webinar funnels.</span></span></label>
           <span class="slider-value cyan" id="v-attend">30%</span>
         </div>
-        <input type="range" min="10" max="60" value="30" id="s-attend" class="filled" aria-label="Registration to attendance rate" oninput="update()">
+        <input type="range" min="10" max="60" value="30" id="s-attend" class="filled" aria-label="Registration to attendance rate" oninput="update(false)">
       </div>
       <div class="slider-group">
         <div class="slider-header">
           <label class="slider-label" for="s-amr">Attendance &rarr; Meeting <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">Percentage of live attendees who book a sales meeting. You can boost this with SDR follow-up calls and outreach to registrants before the webinar.</span></span></label>
           <span class="slider-value cyan" id="v-amr">35%</span>
         </div>
-        <input type="range" min="10" max="60" value="35" id="s-amr" class="filled" aria-label="Attendance to meeting rate" oninput="update()">
+        <input type="range" min="10" max="60" value="35" id="s-amr" class="filled" aria-label="Attendance to meeting rate" oninput="update(false)">
       </div>
       <div class="slider-group">
         <div class="slider-header">
           <label class="slider-label" for="s-namr">Non-attendee &rarr; Meeting <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">Percentage of no-shows who book a meeting through follow-up sequences. Adding SDR calls alongside email follow-ups can significantly increase this rate.</span></span></label>
           <span class="slider-value cyan" id="v-namr">7%</span>
         </div>
-        <input type="range" min="1" max="15" value="7" id="s-namr" class="filled" aria-label="Non-attendee to meeting rate" oninput="update()">
+        <input type="range" min="1" max="15" value="7" id="s-namr" class="filled" aria-label="Non-attendee to meeting rate" oninput="update(false)">
       </div>
     </div>
 
     <!-- CENTER: True Funnel Graphic + Key Metrics -->
     <div class="center-col" style="display:flex;flex-direction:column;gap:0;">
       <section class="card pres-highlight" style="flex:1;display:flex;flex-direction:column;" aria-label="Webinar funnel calculations">
-        <div class="card-label output-label">What It Takes</div>
-        <h2 class="card-title">The Funnel Required to Hit Your Goal</h2>
+        <div class="card-label output-label">What Your Investment Produces</div>
+        <h2 class="card-title">Funnel Performance at This Budget</h2>
 
         <div class="funnel-wrapper" role="list" aria-label="Funnel stages">
           <!-- Stage 1: Registrations (widest) -->
@@ -378,7 +378,7 @@
             <div class="funnel-shape" id="shape-clients"></div>
             <div class="fs-content">
               <div class="s-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-              <div class="s-info"><div class="s-num" id="o-clients" aria-live="polite">--</div><div class="s-lbl">New Clients / Month</div></div>
+              <div class="s-info"><div class="s-num" id="o-clients" aria-live="polite">--</div><div class="s-lbl">New Clients / Month</div><div class="s-lbl" id="goal-indicator" style="font-style:italic;margin-top:1px;"></div></div>
               <div class="s-cost" id="cost-clients"></div>
             </div>
           </div>
@@ -403,14 +403,14 @@
             <label class="slider-label" for="s-mcv">Monthly client value <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">Your average MRR per client. A common benchmark is around $100/seat/user. For example, 15 users = $1,500/mo. Most MSPs target clients with 10-50 users.</span></span></label>
             <span class="slider-value cyan" id="v-mcv">$1,500</span>
           </div>
-          <input type="range" min="500" max="5000" step="100" value="1500" id="s-mcv" class="filled" aria-label="Monthly client value" oninput="update()">
+          <input type="range" min="500" max="5000" step="100" value="1500" id="s-mcv" class="filled" aria-label="Monthly client value" oninput="update(false)">
         </div>
         <div class="slider-group">
           <div class="slider-header">
             <label class="slider-label" for="s-life">Client lifespan <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">How long clients typically stay. 36 months is a very conservative estimate — most MSP clients stick around for 6 to 8 years once onboarded.</span></span></label>
             <span class="slider-value cyan" id="v-life">36 mo</span>
           </div>
-          <input type="range" min="6" max="60" step="6" value="36" id="s-life" class="filled" aria-label="Client lifespan in months" oninput="update()">
+          <input type="range" min="6" max="60" step="6" value="36" id="s-life" class="filled" aria-label="Client lifespan in months" oninput="update(false)">
         </div>
         <div class="section-divider"></div>
       </div>
@@ -461,7 +461,27 @@
     s.style.setProperty('--fill', ((+s.value - +s.min) / (+s.max - +s.min)) * 100 + '%');
   }
 
-  function update() {
+  // Hybrid model: goal sets the budget, then funnel flows forward.
+  // Only the goal slider recalculates the budget — all other sliders
+  // keep the budget locked and show improved outcomes.
+  let lockedBudget = null;
+
+  function calcBudgetFromGoal() {
+    const tc   = +$('s-clients-goal').value;
+    const cr   = +$('s-close').value / 100;
+    const cpr  = +$('s-cpr').value;
+    const ar   = +$('s-attend').value / 100;
+    const amr  = +$('s-amr').value / 100;
+    const namr = +$('s-namr').value / 100;
+    const meetingsNeeded = cr > 0 ? tc / cr : 0;
+    const blendedMR = ar * amr + (1 - ar) * namr;
+    const regs = blendedMR > 0 ? Math.ceil(meetingsNeeded / blendedMR) : 0;
+    lockedBudget = regs * cpr;
+  }
+
+  function update(fromGoal) {
+    if (fromGoal || lockedBudget === null) calcBudgetFromGoal();
+
     const targetClients = +$('s-clients-goal').value;
     const closeRate     = +$('s-close').value / 100;
     const cpr           = +$('s-cpr').value;
@@ -482,15 +502,13 @@
     $('v-life').textContent     = lifespan + ' mo';
     document.querySelectorAll('input[type="range"].filled').forEach(updateSliderFill);
 
-    // Goal-backward funnel: target clients → required meetings → regs → ad spend
-    const meetingsNeeded = closeRate > 0 ? targetClients / closeRate : 0;
-    const blendedMR = attendRate * amr + (1 - attendRate) * namr;
-    const regs = blendedMR > 0 ? Math.ceil(meetingsNeeded / blendedMR) : 0;
+    // Forward-flow from locked budget
+    const ad = lockedBudget;
+    const regs = cpr > 0 ? Math.floor(ad / cpr) : 0;
     const att = Math.round(regs * attendRate);
     const nonAtt = regs - att;
     const tm = att * amr + nonAtt * namr;
     const cl = tm * closeRate;
-    const ad = regs * cpr;
     const cpm = tm > 0 ? ad / tm : 0;
     const ltv = mcv * lifespan;
     const rev = cl * ltv;
@@ -501,7 +519,24 @@
     animateValue($('o-regs'), regs.toLocaleString());
     animateValue($('o-attendees'), att.toLocaleString());
     animateValue($('o-meetings'), tm < 10 ? tm.toFixed(1) : Math.round(tm).toLocaleString());
-    animateValue($('o-clients'), cl < 10 ? cl.toFixed(1) : Math.round(cl).toLocaleString());
+
+    // Clients with goal comparison
+    const clDisplay = cl < 10 ? cl.toFixed(1) : Math.round(cl).toLocaleString();
+    animateValue($('o-clients'), clDisplay);
+    const goalEl = $('goal-indicator');
+    if (goalEl) {
+      const diff = cl - targetClients;
+      if (Math.abs(diff) < 0.15) {
+        goalEl.textContent = 'On target';
+        goalEl.style.color = 'var(--text-tertiary)';
+      } else if (diff > 0) {
+        goalEl.textContent = '+' + diff.toFixed(1) + ' above goal';
+        goalEl.style.color = 'var(--success-light)';
+      } else {
+        goalEl.textContent = diff.toFixed(1) + ' below goal';
+        goalEl.style.color = 'var(--accent-light)';
+      }
+    }
 
     // Conversion rates between funnel stages
     $('rate-attend').textContent = (attendRate * 100).toFixed(0) + '% show rate';
@@ -577,7 +612,7 @@
     sliders.forEach(s => s.addEventListener('input', dismiss, { once: false }));
   })();
 
-  update();
+  update(true);
 </script>
 </body>
 </html>
