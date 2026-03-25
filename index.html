@@ -286,10 +286,10 @@
 
       <div class="slider-group">
         <div class="slider-header">
-          <label class="slider-label" for="s-meetings">Sales meetings / month <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">How many qualified sales meetings do you want booked each month? Most MSPs starting out target 10-20 meetings per month from webinar funnels.</span></span></label>
-          <span class="slider-value gold" id="v-meetings">15</span>
+          <label class="slider-label" for="s-budget">Monthly ad budget <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">How much you're prepared to invest in ads each month. Even $2,000-$3,000/mo can generate significant deal flow when the funnel converts well.</span></span></label>
+          <span class="slider-value gold" id="v-budget">$4,000</span>
         </div>
-        <input type="range" min="5" max="30" value="15" id="s-meetings" class="filled gold" aria-label="Sales meetings per month" oninput="update()">
+        <input type="range" min="500" max="15000" step="250" value="4000" id="s-budget" class="filled gold" aria-label="Monthly ad budget" oninput="update()">
       </div>
       <div class="slider-group">
         <div class="slider-header">
@@ -462,7 +462,7 @@
   }
 
   function update() {
-    const meetings   = +$('s-meetings').value;
+    const budget     = +$('s-budget').value;
     const closeRate  = +$('s-close').value / 100;
     const cpr        = +$('s-cpr').value;
     const attendRate = +$('s-attend').value / 100;
@@ -472,7 +472,7 @@
     const lifespan   = +$('s-life').value;
 
     // Slider display values
-    $('v-meetings').textContent = meetings;
+    $('v-budget').textContent   = '$' + budget.toLocaleString();
     $('v-close').textContent    = $('s-close').value + '%';
     $('v-cpr').textContent      = '$' + cpr;
     $('v-attend').textContent   = $('s-attend').value + '%';
@@ -482,12 +482,14 @@
     $('v-life').textContent     = lifespan + ' mo';
     document.querySelectorAll('input[type="range"].filled').forEach(updateSliderFill);
 
-    // Core logic
-    const mr = attendRate * amr + (1 - attendRate) * namr;
-    const regs = Math.ceil(meetings / mr);
+    // Forward-flowing funnel logic
+    const ad = budget;
+    const regs = Math.floor(budget / cpr);
     const att = Math.round(regs * attendRate);
-    const tm = att * amr + (regs - att) * namr;
-    const ad = regs * cpr;
+    const nonAtt = regs - att;
+    const meetingsFromAtt = att * amr;
+    const meetingsFromNon = nonAtt * namr;
+    const tm = meetingsFromAtt + meetingsFromNon;
     const cpm = tm > 0 ? ad / tm : 0;
     const cl = tm * closeRate;
     const ltv = mcv * lifespan;
@@ -498,18 +500,19 @@
     // Funnel numbers
     animateValue($('o-regs'), regs.toLocaleString());
     animateValue($('o-attendees'), att.toLocaleString());
-    animateValue($('o-meetings'), tm.toFixed(1));
-    animateValue($('o-clients'), cl.toFixed(1));
+    animateValue($('o-meetings'), tm < 10 ? tm.toFixed(1) : Math.round(tm).toLocaleString());
+    animateValue($('o-clients'), cl < 10 ? cl.toFixed(1) : Math.round(cl).toLocaleString());
 
     // Conversion rates
     $('rate-attend').textContent = (attendRate * 100).toFixed(0) + '% show rate';
-    $('rate-meetings').textContent = (tm / regs * 100).toFixed(1) + '% book meetings';
+    const blendedMeetingRate = regs > 0 ? (tm / regs * 100) : 0;
+    $('rate-meetings').textContent = blendedMeetingRate.toFixed(1) + '% book meetings';
     $('rate-clients').textContent = (closeRate * 100).toFixed(0) + '% close rate';
 
     // Cost annotations
     var costPerAttendee = att > 0 ? ad / att : 0;
     var costPerClient = cl > 0 ? ad / cl : 0;
-    $('cost-regs').innerHTML = '<strong>' + fmt(ad) + '</strong> total';
+    $('cost-regs').innerHTML = '$' + cpr + '/reg';
     $('cost-attend').innerHTML = fmt(costPerAttendee) + '/attendee';
     $('cost-meetings').innerHTML = fmt(cpm) + '/meeting';
     $('cost-clients').innerHTML = fmt(costPerClient) + '/client';
