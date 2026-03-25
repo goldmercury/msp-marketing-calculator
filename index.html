@@ -281,30 +281,30 @@
     <!-- LEFT: All inputs -->
     <div class="card hide-in-pres input-card-highlight" style="overflow-y:auto;">
       <span class="start-badge" id="startBadge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg> START HERE</span>
-      <div class="card-label" style="color:var(--accent)">Set Your Targets</div>
-      <h2 class="card-title">What Does Growth Look Like?</h2>
+      <div class="card-label" style="color:var(--accent)">Your Growth Goal</div>
+      <h2 class="card-title">How Many New Clients Do You Want?</h2>
 
-      <div class="slider-group">
+      <div class="slider-group" style="margin-bottom:var(--sp-3);">
         <div class="slider-header">
-          <label class="slider-label" for="s-budget">Monthly ad budget <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">How much you're prepared to invest in ads each month. Even $2,000-$3,000/mo can generate significant deal flow when the funnel converts well.</span></span></label>
-          <span class="slider-value gold" id="v-budget">$4,000</span>
+          <label class="slider-label" for="s-clients-goal">New clients per month <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">How many new managed service clients do you want to add each month? We reverse-engineer the exact funnel needed to deliver this number consistently.</span></span></label>
+          <span class="slider-value gold" id="v-clients-goal" style="font-size:1.1rem;">4</span>
         </div>
-        <input type="range" min="500" max="15000" step="250" value="4000" id="s-budget" class="filled gold" aria-label="Monthly ad budget" oninput="update()">
-      </div>
-      <div class="slider-group">
-        <div class="slider-header">
-          <label class="slider-label" for="s-close">Close rate <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">What percentage of your sales meetings convert into paying clients? 20-30% is typical for MSPs with a solid discovery and proposal process.</span></span></label>
-          <span class="slider-value gold" id="v-close">25%</span>
-        </div>
-        <input type="range" min="10" max="50" value="25" id="s-close" class="filled gold" aria-label="Close rate percentage" oninput="update()">
+        <input type="range" min="1" max="12" value="4" id="s-clients-goal" class="filled gold" aria-label="New clients per month" oninput="update()">
       </div>
 
       <div class="section-divider"></div>
-      <div class="section-sublabel cyan">Funnel Assumptions</div>
+      <div class="section-sublabel cyan">Funnel Conversion Rates</div>
 
       <div class="slider-group">
         <div class="slider-header">
-          <label class="slider-label" for="s-cpr">Cost per registration <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">Your ad cost per webinar sign-up. Most campaigns start around $30-$40 per registration, but by month 3 this typically drops to $10-$15 as your targeting and creative optimise.</span></span></label>
+          <label class="slider-label" for="s-close">Meeting &rarr; Client close rate <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">What percentage of sales meetings convert into paying clients? 20-30% is typical for MSPs with a solid discovery and proposal process.</span></span></label>
+          <span class="slider-value cyan" id="v-close">25%</span>
+        </div>
+        <input type="range" min="10" max="50" value="25" id="s-close" class="filled" aria-label="Close rate percentage" oninput="update()">
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <label class="slider-label" for="s-cpr">Cost per registration <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">Your ad cost per webinar sign-up. Campaigns typically start around $30-$40, but by month 3 this drops to $10-$15 as targeting optimises.</span></span></label>
           <span class="slider-value cyan" id="v-cpr">$40</span>
         </div>
         <input type="range" min="5" max="50" value="40" id="s-cpr" class="filled" aria-label="Cost per registration" oninput="update()">
@@ -336,8 +336,8 @@
     <!-- CENTER: True Funnel Graphic + Key Metrics -->
     <div class="center-col" style="display:flex;flex-direction:column;gap:0;">
       <section class="card pres-highlight" style="flex:1;display:flex;flex-direction:column;" aria-label="Webinar funnel calculations">
-        <div class="card-label output-label">The Numbers</div>
-        <h2 class="card-title">Here's What the Funnel Produces</h2>
+        <div class="card-label output-label">What It Takes</div>
+        <h2 class="card-title">The Funnel Required to Hit Your Goal</h2>
 
         <div class="funnel-wrapper" role="list" aria-label="Funnel stages">
           <!-- Stage 1: Registrations (widest) -->
@@ -385,9 +385,9 @@
         </div>
 
         <div class="key-metrics" style="margin-top:var(--sp-2);" aria-label="Key financial metrics">
-          <div class="key-metric highlight pres-highlight"><div class="km-value" id="o-adspend" aria-live="polite">--</div><div class="km-label">Monthly Ad Spend</div></div>
+          <div class="key-metric highlight pres-highlight"><div class="km-value" id="o-adspend" aria-live="polite">--</div><div class="km-label">Required Ad Spend</div></div>
           <div class="key-metric highlight pres-highlight"><div class="km-value" id="o-cpm" aria-live="polite">--</div><div class="km-label">Cost per Meeting</div></div>
-          <div class="key-metric highlight-green"><div class="km-value green" id="o-rev-month" aria-live="polite">--</div><div class="km-label">Monthly MRR Added</div></div>
+          <div class="key-metric highlight-green"><div class="km-value green" id="o-rev-month" aria-live="polite">--</div><div class="km-label">MRR Added / Month</div></div>
         </div>
       </section>
     </div>
@@ -462,17 +462,17 @@
   }
 
   function update() {
-    const budget     = +$('s-budget').value;
-    const closeRate  = +$('s-close').value / 100;
-    const cpr        = +$('s-cpr').value;
-    const attendRate = +$('s-attend').value / 100;
-    const amr        = +$('s-amr').value / 100;
-    const namr       = +$('s-namr').value / 100;
-    const mcv        = +$('s-mcv').value;
-    const lifespan   = +$('s-life').value;
+    const targetClients = +$('s-clients-goal').value;
+    const closeRate     = +$('s-close').value / 100;
+    const cpr           = +$('s-cpr').value;
+    const attendRate    = +$('s-attend').value / 100;
+    const amr           = +$('s-amr').value / 100;
+    const namr          = +$('s-namr').value / 100;
+    const mcv           = +$('s-mcv').value;
+    const lifespan      = +$('s-life').value;
 
     // Slider display values
-    $('v-budget').textContent   = '$' + budget.toLocaleString();
+    $('v-clients-goal').textContent = targetClients;
     $('v-close').textContent    = $('s-close').value + '%';
     $('v-cpr').textContent      = '$' + cpr;
     $('v-attend').textContent   = $('s-attend').value + '%';
@@ -482,16 +482,16 @@
     $('v-life').textContent     = lifespan + ' mo';
     document.querySelectorAll('input[type="range"].filled').forEach(updateSliderFill);
 
-    // Forward-flowing funnel logic
-    const ad = budget;
-    const regs = Math.floor(budget / cpr);
+    // Goal-backward funnel: target clients → required meetings → regs → ad spend
+    const meetingsNeeded = closeRate > 0 ? targetClients / closeRate : 0;
+    const blendedMR = attendRate * amr + (1 - attendRate) * namr;
+    const regs = blendedMR > 0 ? Math.ceil(meetingsNeeded / blendedMR) : 0;
     const att = Math.round(regs * attendRate);
     const nonAtt = regs - att;
-    const meetingsFromAtt = att * amr;
-    const meetingsFromNon = nonAtt * namr;
-    const tm = meetingsFromAtt + meetingsFromNon;
-    const cpm = tm > 0 ? ad / tm : 0;
+    const tm = att * amr + nonAtt * namr;
     const cl = tm * closeRate;
+    const ad = regs * cpr;
+    const cpm = tm > 0 ? ad / tm : 0;
     const ltv = mcv * lifespan;
     const rev = cl * ltv;
     const roi = ad > 0 ? rev / ad : 0;
@@ -503,10 +503,10 @@
     animateValue($('o-meetings'), tm < 10 ? tm.toFixed(1) : Math.round(tm).toLocaleString());
     animateValue($('o-clients'), cl < 10 ? cl.toFixed(1) : Math.round(cl).toLocaleString());
 
-    // Conversion rates
+    // Conversion rates between funnel stages
     $('rate-attend').textContent = (attendRate * 100).toFixed(0) + '% show rate';
-    const blendedMeetingRate = regs > 0 ? (tm / regs * 100) : 0;
-    $('rate-meetings').textContent = blendedMeetingRate.toFixed(1) + '% book meetings';
+    const blendedPct = regs > 0 ? (tm / regs * 100) : 0;
+    $('rate-meetings').textContent = blendedPct.toFixed(1) + '% book meetings';
     $('rate-clients').textContent = (closeRate * 100).toFixed(0) + '% close rate';
 
     // Cost annotations
@@ -518,9 +518,9 @@
     $('cost-clients').innerHTML = fmt(costPerClient) + '/client';
 
     // True funnel shape — centered, proportional width narrowing both sides
-    const maxW = 98; // max width %
-    const minW = 12; // minimum width for smallest stage
-    const maxVal = regs;
+    const maxW = 98;
+    const minW = 12;
+    const maxVal = regs || 1;
     const regW = maxW;
     const attW = Math.max(att / maxVal * maxW, minW + 8);
     const mtgW = Math.max(tm / maxVal * maxW, minW + 3);
@@ -532,7 +532,7 @@
     $('shape-clients').style.width = clW + '%';
 
     // Key metrics
-    animateValue($('o-adspend'), fmt(ad));
+    animateValue($('o-adspend'), fmt(ad) + '/mo');
     animateValue($('o-cpm'), fmt(cpm));
     animateValue($('o-rev-month'), fmt(mrrAdded));
 
