@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MSP Marketing Budget Calculator</title>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" as="style">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0b0e14; --bg-subtle: #0f1219; --surface: #141820; --surface-hover: #1a1f2e; --surface-overlay: #1e2432;
+    --border: #252b3a; --border-subtle: #1c2130; --border-focus: #3b82f6;
+    --text-primary: #f0f2f5; --text-secondary: #a1b0c8; --text-tertiary: #7a8ba4;
+    --primary: #06b6d4; --primary-light: #22d3ee; --primary-dim: rgba(6,182,212,0.10);
+    --success: #10b981; --success-light: #34d399; --success-dim: rgba(16,185,129,0.10);
+    --accent: #f59e0b; --accent-light: #fbbf24; --accent-dim: rgba(245,158,11,0.10); --accent-glow: rgba(245,158,11,0.18);
+    --info: #818cf8; --info-dim: rgba(129,140,248,0.10);
+    --sky: #38bdf8; --sky-dim: rgba(56,189,248,0.10);
+    --radius-lg: 16px; --radius-md: 12px; --radius-sm: 8px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3); --shadow-md: 0 4px 16px rgba(0,0,0,0.25);
+    --shadow-glow-accent: 0 0 24px rgba(245,158,11,0.12);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); --dur: 200ms;
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-6: 24px;
+  }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+
+  html, body { height: 100%; overflow: hidden; }
+  body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,182,212,0.04) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(245,158,11,0.03) 0%, transparent 60%); pointer-events: none; }
+  .page { display: flex; flex-direction: column; height: 100vh; padding: var(--sp-3) var(--sp-4) var(--sp-2); gap: var(--sp-2); position: relative; z-index: 1; max-width: 1440px; margin: 0 auto; }
+
+  /* Header */
+  .header { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .header-text h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.2; }
+  .header-text h1 span { background: linear-gradient(135deg, var(--primary-light), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .header-text p { font-size: 0.7rem; color: var(--text-tertiary); margin-top: 2px; }
+  .mode-toggle { display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-1) var(--sp-4); min-height: 36px; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; color: var(--text-tertiary); font-size: 0.72rem; font-weight: 500; transition: all var(--dur) var(--ease-out); user-select: none; flex-shrink: 0; }
+  .mode-toggle:hover, .mode-toggle.active { border-color: var(--accent); color: var(--accent-light); background: var(--accent-dim); }
+  .mode-toggle:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+  .mode-toggle .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-tertiary); transition: all var(--dur); }
+  .mode-toggle.active .dot { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .mode-toggle svg { width: 14px; height: 14px; opacity: 0.7; }
+
+  /* Grid */
+  .main-grid { display: grid; grid-template-columns: 0.85fr 1.35fr 0.8fr; gap: var(--sp-3); flex: 1; min-height: 0; }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--sp-3) var(--sp-4) var(--sp-3); display: flex; flex-direction: column; box-shadow: var(--shadow-sm); overflow: hidden; }
+  .card-label { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2px; flex-shrink: 0; }
+  .card-label.input-label { color: var(--primary); }
+  .card-label.output-label { color: var(--success); }
+  .card-label.insight-label { color: var(--accent); }
+  .card-title { font-size: 0.875rem; font-weight: 700; margin-bottom: var(--sp-2); letter-spacing: -0.02em; flex-shrink: 0; }
+  .section-divider { height: 1px; background: var(--border); margin: var(--sp-2) 0; flex-shrink: 0; }
+  .section-sublabel { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: var(--sp-1); flex-shrink: 0; }
+  .section-sublabel.cyan { color: var(--primary); }
+
+  /* Sliders - base */
+  .slider-group { margin-bottom: var(--sp-2); }
+  .slider-group:last-child { margin-bottom: 0; }
+  .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px; }
+  .slider-label { font-size: 0.7rem; color: var(--text-secondary); font-weight: 500; display: flex; align-items: center; gap: var(--sp-1); line-height: 1.4; }
+  .slider-value { font-size: 0.75rem; font-weight: 700; font-variant-numeric: tabular-nums; min-width: 44px; text-align: right; flex-shrink: 0; }
+  .slider-note { font-size: 0.6rem; color: var(--text-tertiary); font-style: italic; margin-top: 2px; line-height: 1.4; }
+  .tip { position: relative; display: inline-flex; cursor: help; }
+  .tip .tip-icon { width: 16px; height: 16px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: var(--text-tertiary); transition: background var(--dur); }
+  .tip:hover .tip-icon { background: var(--primary-dim); color: var(--primary); }
+  .tip .tip-text { display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--surface-overlay); color: var(--text-primary); padding: var(--sp-2) var(--sp-3); border-radius: var(--radius-sm); border: 1px solid var(--border); font-size: 0.7rem; font-weight: 400; width: 260px; text-align: left; z-index: 100; box-shadow: var(--shadow-md); line-height: 1.5; }
+  .tip .tip-text::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--surface-overlay); }
+  .tip:hover .tip-text { display: block; }
+
+  /* Range inputs - cyan (default) */
+  input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 2px; background: var(--border); outline: none; cursor: pointer; }
+  input[type="range"]:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 4px; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--primary); border: 2px solid var(--surface); box-shadow: 0 0 0 1.5px var(--primary), 0 1px 4px rgba(6,182,212,0.3); cursor: pointer; transition: transform 100ms var(--ease-spring); }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+  input[type="range"]::-webkit-slider-thumb:active { transform: scale(0.92); }
+  input[type="range"].filled { background: linear-gradient(to right, var(--primary) 0%, var(--primary) var(--fill, 50%), var(--border) var(--fill, 50%), var(--border) 100%); }
+  .slider-value.cyan { color: var(--primary-light); }
+
+  /* Range inputs - gold (Growth Target) */
+  input[type="range"].gold::-webkit-slider-thumb { background: var(--accent); box-shadow: 0 0 0 1.5px var(--accent), 0 1px 4px rgba(245,158,11,0.3); }
+  input[type="range"].gold.filled { background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--fill, 50%), var(--border) var(--fill, 50%), var(--border) 100%); }
+  .slider-value.gold { color: var(--accent-light); }
+
+  /* ===== TRUE FUNNEL SHAPE ===== */
+  .funnel-wrapper {
+    flex: 1; display: flex; flex-direction: column; gap: 0; min-height: 0;
+    padding: var(--sp-2) 0;
+  }
+  .funnel-stage-row {
+    flex: 1; display: flex; align-items: center; min-height: 0;
+    position: relative;
+  }
+  /* The tapered funnel bar behind each row */
+  .funnel-stage-row .funnel-shape {
+    position: absolute; top: 2px; bottom: 2px;
+    left: 50%; transform: translateX(-50%);
+    border-radius: var(--radius-sm);
+    opacity: 0.18;
+    transition: width 400ms var(--ease-out);
+  }
+  /* Content sits on top */
+  .funnel-stage-row .fs-content {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: var(--sp-3);
+    width: 100%; padding: 0 var(--sp-3);
+  }
+  .funnel-stage-row .s-icon {
+    width: 30px; height: 30px; border-radius: var(--sp-2);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .funnel-stage-row .s-icon svg { width: 15px; height: 15px; }
+  .funnel-stage-row .s-info { flex: 1; min-width: 0; }
+  .funnel-stage-row .s-num { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .funnel-stage-row .s-lbl { font-size: 0.55rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); }
+  .funnel-stage-row .s-cost { font-size: 0.62rem; font-weight: 600; color: var(--text-tertiary); text-align: right; white-space: nowrap; flex-shrink: 0; }
+  .funnel-stage-row .s-cost strong { color: var(--text-secondary); }
+
+  /* Conversion connector */
+  .f-conv { display: flex; align-items: center; justify-content: center; gap: var(--sp-2); padding: 2px 0; flex-shrink: 0; }
+  .f-conv .conv-line { flex: 1; height: 1px; background: linear-gradient(to right, transparent, var(--border), transparent); }
+  .f-conv .conv-badge { font-size: 0.58rem; font-weight: 700; color: var(--text-secondary); background: var(--surface-overlay); border: 1px solid var(--border); padding: 2px var(--sp-3); border-radius: 999px; white-space: nowrap; display: flex; align-items: center; gap: var(--sp-1); box-shadow: var(--shadow-sm); }
+  .f-conv .conv-badge svg { width: 10px; height: 10px; opacity: 0.6; color: var(--primary); }
+
+  /* Stage colors */
+  .funnel-stage-row:hover .funnel-shape { opacity: 0.25; }
+  .fs-regs .s-icon { background: var(--primary-dim); color: var(--primary); }
+  .fs-regs .funnel-shape { background: linear-gradient(90deg, var(--primary), rgba(6,182,212,0.6)); }
+  .fs-regs .s-num { color: var(--primary-light); }
+  .fs-attend .s-icon { background: var(--sky-dim); color: var(--sky); }
+  .fs-attend .funnel-shape { background: linear-gradient(90deg, var(--sky), rgba(56,189,248,0.6)); }
+  .fs-attend .s-num { color: #7dd3fc; }
+  .fs-meet .s-icon { background: var(--success-dim); color: var(--success); }
+  .fs-meet .funnel-shape { background: linear-gradient(90deg, var(--success), rgba(16,185,129,0.6)); }
+  .fs-meet .s-num { color: var(--success-light); }
+  .fs-clients .s-icon { background: var(--info-dim); color: var(--info); }
+  .fs-clients .funnel-shape { background: linear-gradient(90deg, var(--info), rgba(129,140,248,0.6)); }
+  .fs-clients .s-num { color: var(--info); }
+
+  /* Key Metrics */
+  .key-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--sp-2); flex-shrink: 0; }
+  .key-metric { background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: var(--sp-3) var(--sp-2); text-align: center; position: relative; overflow: hidden; }
+  .key-metric.highlight { border-color: var(--accent); background: var(--accent-dim); }
+  .key-metric.highlight::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--accent); }
+  .key-metric .km-value { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; line-height: 1.2; }
+  .key-metric .km-label { font-size: 0.55rem; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+  .key-metric.highlight .km-value { color: var(--accent-light); }
+  .key-metric .km-value.green { color: var(--success-light); }
+  .key-metric.highlight-green { border-color: var(--success); background: var(--success-dim); }
+  .key-metric.highlight-green::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--success); }
+
+  /* Right column */
+  .right-inner { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: var(--sp-2); }
+  .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-2); flex: 1; min-height: 0; }
+  .metric-card { background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--sp-3) var(--sp-2); text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; overflow: hidden; transition: all var(--dur) var(--ease-out); }
+  .metric-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; opacity: 0; transition: opacity var(--dur); }
+  .metric-card:hover::before { opacity: 1; }
+  .metric-card.success-val::before { background: var(--success); }
+  .metric-card.success-val .metric-value { color: var(--success-light); }
+  .metric-card .metric-value { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; line-height: 1.2; margin-bottom: 2px; }
+  .metric-card .metric-label { font-size: 0.55rem; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* ROI Hero */
+  .roi-hero { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); padding: var(--sp-4) var(--sp-3); background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(6,182,212,0.05), rgba(245,158,11,0.08)); border: 1px solid rgba(16,185,129,0.2); border-radius: var(--radius-md); position: relative; flex-shrink: 0; box-shadow: 0 4px 24px rgba(16,185,129,0.06); }
+  .roi-hero::before { content: ''; position: absolute; inset: -1px; border-radius: var(--radius-md); padding: 1px; background: linear-gradient(135deg, rgba(16,185,129,0.35), rgba(245,158,11,0.35)); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+  .roi-item { text-align: center; }
+  .roi-item .roi-value { font-size: 1.75rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .roi-item .roi-label { font-size: 0.55rem; color: var(--text-secondary); font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .roi-divider { width: 1px; height: 32px; background: linear-gradient(to bottom, transparent, var(--border), transparent); }
+
+  /* CTA */
+  .cta-bar { display: flex; align-items: center; justify-content: center; gap: var(--sp-4); flex-shrink: 0; padding: var(--sp-1) 0 0; }
+  .cta-bar p { font-size: 0.72rem; color: var(--text-tertiary); font-weight: 500; }
+  .cta-btn { display: inline-flex; align-items: center; gap: var(--sp-1); padding: var(--sp-2) var(--sp-4); min-height: 34px; background: linear-gradient(135deg, var(--primary), #0891b2); color: #fff; font-size: 0.72rem; font-weight: 600; border: none; border-radius: 999px; cursor: pointer; transition: transform 100ms var(--ease-spring), box-shadow var(--dur); text-decoration: none; }
+  .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(6,182,212,0.25); }
+  .cta-btn:active { transform: scale(0.97); }
+  .cta-btn:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
+  .cta-btn svg { width: 13px; height: 13px; }
+
+  @keyframes valueUpdate { 0% { opacity: 1; transform: scale(1); } 25% { opacity: 0.5; transform: scale(0.97); } 100% { opacity: 1; transform: scale(1); } }
+  .updating { animation: valueUpdate var(--dur) var(--ease-out); }
+
+  /* Presentation Mode */
+  body.presentation .hide-in-pres { display: none !important; }
+  body.presentation .page { padding: var(--sp-4) 28px var(--sp-3); gap: var(--sp-3); }
+  body.presentation .main-grid { grid-template-columns: 1.3fr 1fr; gap: var(--sp-4); }
+  body.presentation .header-text h1 { font-size: 1.4rem; }
+  body.presentation .card { padding: 20px; }
+  body.presentation .card-title { font-size: 1.05rem; }
+  body.presentation .funnel-stage-row .s-num { font-size: 2.2rem; }
+  body.presentation .funnel-stage-row .s-lbl { font-size: 0.65rem; }
+  body.presentation .funnel-stage-row .s-icon { width: 38px; height: 38px; }
+  body.presentation .funnel-stage-row .s-icon svg { width: 18px; height: 18px; }
+  body.presentation .f-conv .conv-badge { font-size: 0.65rem; padding: 3px 14px; }
+  body.presentation .key-metric .km-value { font-size: 1.9rem; }
+  body.presentation .key-metric .km-label { font-size: 0.6rem; }
+  body.presentation .metric-card .metric-value { font-size: 1.9rem; }
+  body.presentation .roi-item .roi-value { font-size: 2.6rem; }
+  body.presentation .roi-item .roi-label { font-size: 0.6rem; }
+  body.presentation .pres-highlight { border-color: var(--accent) !important; box-shadow: var(--shadow-glow-accent) !important; }
+
+  @media (max-width: 1024px) { .main-grid { grid-template-columns: 1fr 1fr; } .center-col { grid-column: 1 / -1; order: -1; } html, body { overflow: auto; height: auto; } .page { height: auto; min-height: 100vh; } }
+  @media (max-width: 640px) { .main-grid { grid-template-columns: 1fr; } .page { padding: var(--sp-3); } .header { flex-direction: column; gap: var(--sp-2); text-align: center; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="header">
+    <div class="header-text">
+      <h1>Turn Marketing Spend Into <span>Predictable Revenue</span></h1>
+      <p>Know exactly how much to invest to generate consistent sales meetings and clients.</p>
+    </div>
+    <button class="mode-toggle" id="presToggle" onclick="togglePresentation()" aria-label="Toggle presentation mode" role="switch" aria-checked="false">
+      <span class="dot" aria-hidden="true"></span>
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Presentation Mode
+    </button>
+  </header>
+
+  <div class="main-grid">
+
+    <!-- LEFT: All inputs -->
+    <div class="card hide-in-pres" style="overflow-y:auto;">
+      <div class="card-label" style="color:var(--accent)">Growth Target</div>
+      <h2 class="card-title">Your Goals</h2>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label class="slider-label" for="s-meetings">Sales meetings / month <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">How many qualified sales meetings do you want booked each month? Most MSPs starting out target 10-20 meetings per month from webinar funnels.</span></span></label>
+          <span class="slider-value gold" id="v-meetings">15</span>
+        </div>
+        <input type="range" min="5" max="30" value="15" id="s-meetings" class="filled gold" aria-label="Sales meetings per month" oninput="update()">
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <label class="slider-label" for="s-close">Close rate <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">What percentage of your sales meetings convert into paying clients? 20-30% is typical for MSPs with a solid discovery and proposal process.</span></span></label>
+          <span class="slider-value gold" id="v-close">25%</span>
+        </div>
+        <input type="range" min="10" max="50" value="25" id="s-close" class="filled gold" aria-label="Close rate percentage" oninput="update()">
+      </div>
+
+      <div class="section-divider"></div>
+      <div class="section-sublabel cyan">Webinar Funnel</div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <label class="slider-label" for="s-cpr">Cost per registration <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">Your ad cost per webinar sign-up. Most campaigns start around $30-$40 per registration, but by month 3 this typically drops to $10-$15 as your targeting and creative optimise.</span></span></label>
+          <span class="slider-value cyan" id="v-cpr">$40</span>
+        </div>
+        <input type="range" min="5" max="50" value="40" id="s-cpr" class="filled" aria-label="Cost per registration" oninput="update()">
+        <div class="slider-note">Typically drops to $10-$15 within 3 months</div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <label class="slider-label" for="s-attend">Registration &rarr; Attendance <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">The percentage of registrants who show up live. Industry average is around 30% for webinar funnels.</span></span></label>
+          <span class="slider-value cyan" id="v-attend">30%</span>
+        </div>
+        <input type="range" min="10" max="60" value="30" id="s-attend" class="filled" aria-label="Registration to attendance rate" oninput="update()">
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <label class="slider-label" for="s-amr">Attendance &rarr; Meeting <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">Percentage of live attendees who book a sales meeting. You can boost this with SDR follow-up calls and outreach to registrants before the webinar.</span></span></label>
+          <span class="slider-value cyan" id="v-amr">35%</span>
+        </div>
+        <input type="range" min="10" max="60" value="35" id="s-amr" class="filled" aria-label="Attendance to meeting rate" oninput="update()">
+      </div>
+      <div class="slider-group">
+        <div class="slider-header">
+          <label class="slider-label" for="s-namr">Non-attendee &rarr; Meeting <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">Percentage of no-shows who book a meeting through follow-up sequences. Adding SDR calls alongside email follow-ups can significantly increase this rate.</span></span></label>
+          <span class="slider-value cyan" id="v-namr">7%</span>
+        </div>
+        <input type="range" min="1" max="15" value="7" id="s-namr" class="filled" aria-label="Non-attendee to meeting rate" oninput="update()">
+      </div>
+    </div>
+
+    <!-- CENTER: True Funnel Graphic + Key Metrics -->
+    <div class="center-col" style="display:flex;flex-direction:column;gap:0;">
+      <section class="card pres-highlight" style="flex:1;display:flex;flex-direction:column;" aria-label="Webinar funnel calculations">
+        <div class="card-label output-label">Your Webinar Funnel</div>
+        <h2 class="card-title">Automatic Calculations</h2>
+
+        <div class="funnel-wrapper" role="list" aria-label="Funnel stages">
+          <!-- Stage 1: Registrations (widest) -->
+          <div class="funnel-stage-row fs-regs" role="listitem">
+            <div class="funnel-shape" id="shape-regs"></div>
+            <div class="fs-content">
+              <div class="s-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div class="s-info"><div class="s-num" id="o-regs" aria-live="polite">--</div><div class="s-lbl">Registrations</div></div>
+              <div class="s-cost" id="cost-regs"></div>
+            </div>
+          </div>
+          <div class="f-conv" aria-hidden="true"><div class="conv-line"></div><div class="conv-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> <span id="rate-attend"></span></div><div class="conv-line"></div></div>
+
+          <!-- Stage 2: Attendees -->
+          <div class="funnel-stage-row fs-attend" role="listitem">
+            <div class="funnel-shape" id="shape-attend"></div>
+            <div class="fs-content">
+              <div class="s-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+              <div class="s-info"><div class="s-num" id="o-attendees" aria-live="polite">--</div><div class="s-lbl">Live Attendees</div></div>
+              <div class="s-cost" id="cost-attend"></div>
+            </div>
+          </div>
+          <div class="f-conv" aria-hidden="true"><div class="conv-line"></div><div class="conv-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> <span id="rate-meetings"></span></div><div class="conv-line"></div></div>
+
+          <!-- Stage 3: Meetings -->
+          <div class="funnel-stage-row fs-meet" role="listitem">
+            <div class="funnel-shape" id="shape-meetings"></div>
+            <div class="fs-content">
+              <div class="s-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+              <div class="s-info"><div class="s-num" id="o-meetings" aria-live="polite">--</div><div class="s-lbl">Meetings Booked</div></div>
+              <div class="s-cost" id="cost-meetings"></div>
+            </div>
+          </div>
+          <div class="f-conv" aria-hidden="true"><div class="conv-line"></div><div class="conv-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg> <span id="rate-clients"></span></div><div class="conv-line"></div></div>
+
+          <!-- Stage 4: New Clients (narrowest) -->
+          <div class="funnel-stage-row fs-clients" role="listitem">
+            <div class="funnel-shape" id="shape-clients"></div>
+            <div class="fs-content">
+              <div class="s-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+              <div class="s-info"><div class="s-num" id="o-clients" aria-live="polite">--</div><div class="s-lbl">New Clients / Month</div></div>
+              <div class="s-cost" id="cost-clients"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="key-metrics" style="margin-top:var(--sp-2);" aria-label="Key financial metrics">
+          <div class="key-metric highlight pres-highlight"><div class="km-value" id="o-adspend" aria-live="polite">--</div><div class="km-label">Monthly Ad Spend</div></div>
+          <div class="key-metric highlight pres-highlight"><div class="km-value" id="o-cpm" aria-live="polite">--</div><div class="km-label">Cost per Meeting</div></div>
+          <div class="key-metric highlight-green"><div class="km-value green" id="o-rev-month" aria-live="polite">--</div><div class="km-label">Monthly MRR Added</div></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- RIGHT: Revenue & ROI -->
+    <div class="card pres-highlight" style="display:flex;flex-direction:column;">
+      <div class="card-label insight-label">What This Is Worth</div>
+      <h2 class="card-title">Revenue & ROI</h2>
+
+      <div class="hide-in-pres" style="flex-shrink:0;">
+        <div class="slider-group">
+          <div class="slider-header">
+            <label class="slider-label" for="s-mcv">Monthly client value <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">Your average MRR per client. A common benchmark is around $100/seat/user. For example, 15 users = $1,500/mo. Most MSPs target clients with 10-50 users.</span></span></label>
+            <span class="slider-value cyan" id="v-mcv">$1,500</span>
+          </div>
+          <input type="range" min="500" max="5000" step="100" value="1500" id="s-mcv" class="filled" aria-label="Monthly client value" oninput="update()">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header">
+            <label class="slider-label" for="s-life">Client lifespan <span class="tip"><span class="tip-icon" aria-label="More info">?</span><span class="tip-text" role="tooltip">How long clients typically stay. 36 months is a very conservative estimate — most MSP clients stick around for 6 to 8 years once onboarded.</span></span></label>
+            <span class="slider-value cyan" id="v-life">36 mo</span>
+          </div>
+          <input type="range" min="6" max="60" step="6" value="36" id="s-life" class="filled" aria-label="Client lifespan in months" oninput="update()">
+        </div>
+        <div class="section-divider"></div>
+      </div>
+
+      <div class="right-inner">
+        <div class="metrics-grid" aria-label="Revenue metrics">
+          <div class="metric-card success-val"><div class="metric-value" id="o-ltv" aria-live="polite">--</div><div class="metric-label">LTV / Client</div></div>
+          <div class="metric-card success-val"><div class="metric-value" id="o-revenue" aria-live="polite">--</div><div class="metric-label">Total Revenue</div></div>
+        </div>
+        <div class="roi-hero" aria-label="Return on investment">
+          <div class="roi-item"><div class="roi-value" style="color:var(--accent-light)" id="o-roi" aria-live="polite">--</div><div class="roi-label">ROI Multiple</div></div>
+          <div class="roi-divider" aria-hidden="true"></div>
+          <div class="roi-item"><div class="roi-value" style="color:var(--success-light)" id="o-roi-dollar" aria-live="polite">--</div><div class="roi-label">Per $1 Spent</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cta-bar">
+    <p>Want help hitting these numbers?</p>
+    <a href="#" class="cta-btn" onclick="event.preventDefault()" role="button">
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Book a Strategy Call
+    </a>
+  </div>
+
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+
+  function fmt(n) {
+    if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return '$' + Math.round(n).toLocaleString();
+    return '$' + Math.round(n).toLocaleString();
+  }
+
+  function animateValue(el, value) {
+    if (el.textContent === value) return;
+    el.classList.remove('updating');
+    void el.offsetWidth;
+    el.classList.add('updating');
+    el.textContent = value;
+  }
+
+  function updateSliderFill(s) {
+    s.style.setProperty('--fill', ((+s.value - +s.min) / (+s.max - +s.min)) * 100 + '%');
+  }
+
+  function update() {
+    const meetings   = +$('s-meetings').value;
+    const closeRate  = +$('s-close').value / 100;
+    const cpr        = +$('s-cpr').value;
+    const attendRate = +$('s-attend').value / 100;
+    const amr        = +$('s-amr').value / 100;
+    const namr       = +$('s-namr').value / 100;
+    const mcv        = +$('s-mcv').value;
+    const lifespan   = +$('s-life').value;
+
+    // Slider display values
+    $('v-meetings').textContent = meetings;
+    $('v-close').textContent    = $('s-close').value + '%';
+    $('v-cpr').textContent      = '$' + cpr;
+    $('v-attend').textContent   = $('s-attend').value + '%';
+    $('v-amr').textContent      = $('s-amr').value + '%';
+    $('v-namr').textContent     = $('s-namr').value + '%';
+    $('v-mcv').textContent      = '$' + mcv.toLocaleString();
+    $('v-life').textContent     = lifespan + ' mo';
+    document.querySelectorAll('input[type="range"].filled').forEach(updateSliderFill);
+
+    // Core logic
+    const mr = attendRate * amr + (1 - attendRate) * namr;
+    const regs = Math.ceil(meetings / mr);
+    const att = Math.round(regs * attendRate);
+    const tm = att * amr + (regs - att) * namr;
+    const ad = regs * cpr;
+    const cpm = tm > 0 ? ad / tm : 0;
+    const cl = tm * closeRate;
+    const ltv = mcv * lifespan;
+    const rev = cl * ltv;
+    const roi = ad > 0 ? rev / ad : 0;
+    const mrrAdded = cl * mcv;
+
+    // Funnel numbers
+    animateValue($('o-regs'), regs.toLocaleString());
+    animateValue($('o-attendees'), att.toLocaleString());
+    animateValue($('o-meetings'), tm.toFixed(1));
+    animateValue($('o-clients'), cl.toFixed(1));
+
+    // Conversion rates
+    $('rate-attend').textContent = (attendRate * 100).toFixed(0) + '% show rate';
+    $('rate-meetings').textContent = (tm / regs * 100).toFixed(1) + '% book meetings';
+    $('rate-clients').textContent = (closeRate * 100).toFixed(0) + '% close rate';
+
+    // Cost annotations
+    var costPerAttendee = att > 0 ? ad / att : 0;
+    var costPerClient = cl > 0 ? ad / cl : 0;
+    $('cost-regs').innerHTML = '<strong>' + fmt(ad) + '</strong> total';
+    $('cost-attend').innerHTML = fmt(costPerAttendee) + '/attendee';
+    $('cost-meetings').innerHTML = fmt(cpm) + '/meeting';
+    $('cost-clients').innerHTML = fmt(costPerClient) + '/client';
+
+    // True funnel shape — centered, proportional width narrowing both sides
+    const maxW = 98; // max width %
+    const minW = 12; // minimum width for smallest stage
+    const maxVal = regs;
+    const regW = maxW;
+    const attW = Math.max(att / maxVal * maxW, minW + 8);
+    const mtgW = Math.max(tm / maxVal * maxW, minW + 3);
+    const clW = Math.max(cl / maxVal * maxW, minW);
+
+    $('shape-regs').style.width = regW + '%';
+    $('shape-attend').style.width = attW + '%';
+    $('shape-meetings').style.width = mtgW + '%';
+    $('shape-clients').style.width = clW + '%';
+
+    // Key metrics
+    animateValue($('o-adspend'), fmt(ad));
+    animateValue($('o-cpm'), fmt(cpm));
+    animateValue($('o-rev-month'), fmt(mrrAdded));
+
+    // Revenue & ROI
+    animateValue($('o-ltv'), fmt(ltv));
+    animateValue($('o-revenue'), fmt(rev));
+    animateValue($('o-roi'), roi.toFixed(1) + 'x');
+    animateValue($('o-roi-dollar'), fmt(rev / (ad || 1)));
+  }
+
+  function togglePresentation() {
+    const active = document.body.classList.toggle('presentation');
+    const btn = $('presToggle');
+    btn.classList.toggle('active');
+    btn.setAttribute('aria-checked', active ? 'true' : 'false');
+  }
+
+  update();
+</script>
+</body>
+</html>
