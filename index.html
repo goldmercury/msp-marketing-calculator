@@ -522,12 +522,12 @@
     animateValue($('o-attendees'), att.toLocaleString());
     animateValue($('o-meetings'), tm < 10 ? tm.toFixed(1) : Math.round(tm).toLocaleString());
 
-    // Meetings breakdown: show where meetings come from
+    // Meetings breakdown: show source counts so the math is traceable
     const bkdn = $('meetings-breakdown');
     if (bkdn) {
       const liveNum = mtgFromLive < 10 ? mtgFromLive.toFixed(1) : Math.round(mtgFromLive);
       const fuNum = mtgFromFollowUp < 10 ? mtgFromFollowUp.toFixed(1) : Math.round(mtgFromFollowUp);
-      bkdn.textContent = liveNum + ' from live · ' + fuNum + ' from follow-up';
+      bkdn.textContent = liveNum + ' from ' + att + ' live · ' + fuNum + ' from ' + nonAtt + ' no-shows';
     }
 
     // Clients with goal comparison
