@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12-Month Webinar Funnel Projection</title>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" as="style">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0b0e14; --bg-subtle: #0f1219; --surface: #141820; --surface-hover: #1a1f2e; --surface-overlay: #1e2432;
+    --border: #252b3a; --border-subtle: #1c2130; --border-focus: #3b82f6;
+    --text-primary: #f0f2f5; --text-secondary: #a1b0c8; --text-tertiary: #7a8ba4;
+    --primary: #06b6d4; --primary-light: #22d3ee; --primary-dim: rgba(6,182,212,0.10);
+    --success: #10b981; --success-light: #34d399; --success-dim: rgba(16,185,129,0.10);
+    --accent: #f59e0b; --accent-light: #fbbf24; --accent-dim: rgba(245,158,11,0.10);
+    --info: #818cf8; --info-dim: rgba(129,140,248,0.10);
+    --danger: #ef4444; --danger-light: #f87171;
+    --radius-lg: 16px; --radius-md: 12px; --radius-sm: 8px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.3); --shadow-md: 0 4px 16px rgba(0,0,0,0.25);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --dur: 200ms;
+    --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-6: 24px;
+  }
+
+  html { height: 100%; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; min-height: 100%; }
+  body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(6,182,212,0.04) 0%, transparent 70%), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(245,158,11,0.03) 0%, transparent 60%); pointer-events: none; }
+
+  .page { max-width: 1200px; margin: 0 auto; padding: var(--sp-6) var(--sp-4); position: relative; z-index: 1; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: var(--sp-6); }
+  .header h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 4px; }
+  .header h1 span { background: linear-gradient(135deg, var(--primary-light), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .header p { font-size: 0.85rem; color: var(--text-tertiary); }
+
+  /* Inputs strip */
+  .inputs-strip { display: flex; gap: var(--sp-3); margin-bottom: var(--sp-6); flex-wrap: wrap; justify-content: center; }
+  .input-chip { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: var(--sp-3) var(--sp-4); display: flex; flex-direction: column; gap: 4px; min-width: 160px; flex: 1; max-width: 220px; }
+  .input-chip label { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-tertiary); }
+  .input-chip .chip-row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2); }
+  .input-chip .chip-val { font-size: 1rem; font-weight: 800; color: var(--accent-light); font-variant-numeric: tabular-nums; min-width: 50px; text-align: right; }
+  .input-chip input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 2px; background: var(--border); outline: none; cursor: pointer; }
+  .input-chip input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); box-shadow: 0 0 0 1px var(--accent); cursor: pointer; }
+
+  /* Hero counters */
+  .hero-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-3); margin-bottom: var(--sp-6); }
+  .hero-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--sp-4) var(--sp-3); text-align: center; position: relative; overflow: hidden; }
+  .hero-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .hero-card.spend::before { background: var(--accent); }
+  .hero-card.clients::before { background: var(--primary); }
+  .hero-card.mrr::before { background: var(--success); }
+  .hero-card.roi::before { background: linear-gradient(90deg, var(--success), var(--accent)); }
+  .hero-val { font-size: 2rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; font-variant-numeric: tabular-nums; margin-bottom: 4px; }
+  .hero-card.spend .hero-val { color: var(--accent-light); }
+  .hero-card.clients .hero-val { color: var(--primary-light); }
+  .hero-card.mrr .hero-val { color: var(--success-light); }
+  .hero-card.roi .hero-val { color: var(--success-light); }
+  .hero-label { font-size: 0.68rem; color: var(--text-tertiary); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+  .hero-sub { font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
+
+  /* Charts row */
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-bottom: var(--sp-6); }
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--sp-4); }
+  .chart-title { font-size: 0.75rem; font-weight: 700; margin-bottom: var(--sp-3); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+  .chart-wrap { position: relative; height: 220px; }
+
+  /* Month table */
+  .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--sp-4); overflow-x: auto; }
+  .table-title { font-size: 0.75rem; font-weight: 700; margin-bottom: var(--sp-3); color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.06em; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  th { text-align: left; padding: var(--sp-2) var(--sp-3); font-weight: 600; color: var(--text-tertiary); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: var(--sp-2) var(--sp-3); border-bottom: 1px solid var(--border-subtle); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  .col-month { font-weight: 700; color: var(--text-primary); }
+  .col-cpr { color: var(--accent-light); font-weight: 600; }
+  .col-regs { color: var(--primary-light); }
+  .col-meetings { color: var(--text-secondary); }
+  .col-clients { color: var(--primary-light); font-weight: 600; }
+  .col-spend { color: var(--accent-light); }
+  .col-cum-clients { color: var(--info); font-weight: 700; }
+  .col-mrr { color: var(--success-light); font-weight: 700; }
+  .col-cum-rev { color: var(--success-light); }
+  tr.total-row td { border-top: 2px solid var(--border); font-weight: 800; padding-top: var(--sp-3); }
+
+  /* CTA */
+  .cta-bar { text-align: center; margin-top: var(--sp-6); padding: var(--sp-4) 0; }
+  .cta-bar p { font-size: 0.85rem; color: var(--text-tertiary); margin-bottom: var(--sp-3); }
+  .cta-btn { display: inline-flex; align-items: center; gap: var(--sp-2); padding: var(--sp-3) var(--sp-6); background: linear-gradient(135deg, var(--primary), #0891b2); color: #fff; font-size: 0.85rem; font-weight: 700; border: none; border-radius: 999px; cursor: pointer; text-decoration: none; transition: transform 100ms, box-shadow var(--dur); }
+  .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(6,182,212,0.3); }
+  .cta-btn svg { width: 16px; height: 16px; }
+
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr 1fr; } .charts-row { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { .hero-grid { grid-template-columns: 1fr; } .inputs-strip { flex-direction: column; align-items: stretch; } .input-chip { max-width: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <h1>12-Month <span>Funnel Projection</span></h1>
+    <p>See how the same monthly investment compounds as your ad costs drop and your funnel optimises.</p>
+  </div>
+
+  <div class="inputs-strip">
+    <div class="input-chip">
+      <label>Monthly Ad Budget</label>
+      <div class="chip-row"><input type="range" min="1000" max="10000" step="250" value="4000" id="s-budget" oninput="render()"><span class="chip-val" id="v-budget">$4,000</span></div>
+    </div>
+    <div class="input-chip">
+      <label>Starting CPR (Month 1)</label>
+      <div class="chip-row"><input type="range" min="20" max="60" step="1" value="45" id="s-cpr-start" oninput="render()"><span class="chip-val" id="v-cpr-start">$45</span></div>
+    </div>
+    <div class="input-chip">
+      <label>Optimised CPR (Month 12)</label>
+      <div class="chip-row"><input type="range" min="3" max="25" step="1" value="7" id="s-cpr-end" oninput="render()"><span class="chip-val" id="v-cpr-end">$7</span></div>
+    </div>
+    <div class="input-chip">
+      <label>Attendance Rate</label>
+      <div class="chip-row"><input type="range" min="15" max="55" step="1" value="30" id="s-attend" oninput="render()"><span class="chip-val" id="v-attend">30%</span></div>
+    </div>
+    <div class="input-chip">
+      <label>Live → Meeting</label>
+      <div class="chip-row"><input type="range" min="15" max="60" step="1" value="35" id="s-amr" oninput="render()"><span class="chip-val" id="v-amr">35%</span></div>
+    </div>
+    <div class="input-chip">
+      <label>No-show → Meeting</label>
+      <div class="chip-row"><input type="range" min="1" max="15" step="1" value="7" id="s-namr" oninput="render()"><span class="chip-val" id="v-namr">7%</span></div>
+    </div>
+    <div class="input-chip">
+      <label>Close Rate</label>
+      <div class="chip-row"><input type="range" min="10" max="50" step="1" value="25" id="s-close" oninput="render()"><span class="chip-val" id="v-close">25%</span></div>
+    </div>
+    <div class="input-chip">
+      <label>Monthly Client Value</label>
+      <div class="chip-row"><input type="range" min="500" max="5000" step="100" value="1500" id="s-mcv" oninput="render()"><span class="chip-val" id="v-mcv">$1,500</span></div>
+    </div>
+  </div>
+
+  <!-- Hero counters -->
+  <div class="hero-grid">
+    <div class="hero-card spend">
+      <div class="hero-val" id="h-spend">--</div>
+      <div class="hero-label">Total 12-Month Ad Spend</div>
+      <div class="hero-sub" id="h-spend-sub"></div>
+    </div>
+    <div class="hero-card clients">
+      <div class="hero-val" id="h-clients">--</div>
+      <div class="hero-label">New Clients Won</div>
+      <div class="hero-sub" id="h-clients-sub"></div>
+    </div>
+    <div class="hero-card mrr">
+      <div class="hero-val" id="h-mrr">--</div>
+      <div class="hero-label">MRR by Month 12</div>
+      <div class="hero-sub" id="h-mrr-sub"></div>
+    </div>
+    <div class="hero-card roi">
+      <div class="hero-val" id="h-roi">--</div>
+      <div class="hero-label">12-Month ROI</div>
+      <div class="hero-sub" id="h-roi-sub"></div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">Cost Per Registration — Decay Curve</div>
+      <div class="chart-wrap"><canvas id="chart-cpr"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Cumulative Revenue vs Cumulative Spend</div>
+      <div class="chart-wrap"><canvas id="chart-rev"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Month-by-month table -->
+  <div class="table-card">
+    <div class="table-title">Month-by-Month Breakdown</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>CPR</th>
+          <th>Regs</th>
+          <th>Attendees</th>
+          <th>Meetings</th>
+          <th>New Clients</th>
+          <th>Ad Spend</th>
+          <th>Total Active Clients</th>
+          <th>Monthly MRR</th>
+          <th>Cumulative Revenue</th>
+        </tr>
+      </thead>
+      <tbody id="tbl-body"></tbody>
+    </table>
+  </div>
+
+  <div class="cta-bar">
+    <p>These projections are based on real funnel data from MSP webinar campaigns.</p>
+    <a href="https://calendly.com/itrockstars/webinar-funnel" class="cta-btn" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Let's Build Your Funnel — Book a Call
+    </a>
+  </div>
+
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function fmt(n) {
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + Math.round(n).toLocaleString();
+  return '$' + Math.round(n);
+}
+
+// Steep exponential decay: most drop in first 3-4 months, flattens out
+function cprAtMonth(month, startCPR, endCPR) {
+  // month is 1-based. k controls steepness.
+  const k = 0.35;
+  const t = month - 1; // 0-indexed for formula
+  return endCPR + (startCPR - endCPR) * Math.exp(-k * t);
+}
+
+let cprChart = null;
+let revChart = null;
+
+function render() {
+  const budget   = +$('s-budget').value;
+  const cprStart = +$('s-cpr-start').value;
+  const cprEnd   = +$('s-cpr-end').value;
+  const attend   = +$('s-attend').value / 100;
+  const amr      = +$('s-amr').value / 100;
+  const namr     = +$('s-namr').value / 100;
+  const close    = +$('s-close').value / 100;
+  const mcv      = +$('s-mcv').value;
+
+  // Display slider values
+  $('v-budget').textContent    = '$' + budget.toLocaleString();
+  $('v-cpr-start').textContent = '$' + cprStart;
+  $('v-cpr-end').textContent   = '$' + cprEnd;
+  $('v-attend').textContent    = $('s-attend').value + '%';
+  $('v-amr').textContent       = $('s-amr').value + '%';
+  $('v-namr').textContent      = $('s-namr').value + '%';
+  $('v-close').textContent     = $('s-close').value + '%';
+  $('v-mcv').textContent       = '$' + mcv.toLocaleString();
+
+  // Calculate 12 months
+  const months = [];
+  let totalSpend = 0;
+  let totalNewClients = 0;
+  let activeClients = 0;
+  let cumRevenue = 0;
+
+  for (let m = 1; m <= 12; m++) {
+    const cpr = cprAtMonth(m, cprStart, cprEnd);
+    const regs = Math.floor(budget / cpr);
+    const att = Math.round(regs * attend);
+    const nonAtt = regs - att;
+    const meetings = att * amr + nonAtt * namr;
+    const newClients = meetings * close;
+
+    totalSpend += budget;
+    totalNewClients += newClients;
+    activeClients += newClients; // all clients still active within 12 months
+    const mrr = activeClients * mcv;
+    cumRevenue += mrr;
+
+    months.push({
+      month: m, cpr, regs, att, meetings, newClients,
+      spend: budget, totalSpend, activeClients, mrr, cumRevenue
+    });
+  }
+
+  // Hero counters
+  $('h-spend').textContent = fmt(totalSpend);
+  $('h-spend-sub').textContent = fmt(budget) + '/mo fixed investment';
+
+  $('h-clients').textContent = Math.round(totalNewClients).toLocaleString();
+  const avgPerMonth = (totalNewClients / 12);
+  $('h-clients-sub').textContent = avgPerMonth.toFixed(1) + ' avg per month';
+
+  const finalMRR = months[11].mrr;
+  $('h-mrr').textContent = fmt(finalMRR);
+  $('h-mrr-sub').textContent = Math.round(months[11].activeClients) + ' active clients';
+
+  const roi = cumRevenue / totalSpend;
+  $('h-roi').textContent = roi.toFixed(1) + 'x';
+  $('h-roi-sub').textContent = fmt(cumRevenue) + ' total revenue';
+
+  // Charts
+  const labels = months.map(m => 'M' + m.month);
+  const cprData = months.map(m => +m.cpr.toFixed(2));
+  const cumSpendData = months.map(m => m.totalSpend);
+  const cumRevData = months.map(m => m.cumRevenue);
+  const mrrData = months.map(m => m.mrr);
+
+  const chartFont = { family: "'Inter', sans-serif", size: 11, weight: '500' };
+  const gridColor = 'rgba(37,43,58,0.6)';
+
+  // CPR chart
+  if (cprChart) cprChart.destroy();
+  cprChart = new Chart($('chart-cpr'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Cost Per Registration',
+        data: cprData,
+        borderColor: '#fbbf24',
+        backgroundColor: 'rgba(251,191,36,0.08)',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: '#fbbf24',
+        pointBorderColor: '#141820',
+        pointBorderWidth: 2,
+        fill: true,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) } }
+      },
+      scales: {
+        x: { ticks: { color: '#7a8ba4', font: chartFont }, grid: { color: gridColor } },
+        y: { ticks: { color: '#7a8ba4', font: chartFont, callback: v => '$' + v }, grid: { color: gridColor } }
+      }
+    }
+  });
+
+  // Revenue vs Spend chart
+  if (revChart) revChart.destroy();
+  revChart = new Chart($('chart-rev'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'Cumulative Revenue',
+          data: cumRevData,
+          backgroundColor: 'rgba(16,185,129,0.5)',
+          borderColor: '#10b981',
+          borderWidth: 1,
+          borderRadius: 4,
+          order: 2
+        },
+        {
+          label: 'Cumulative Spend',
+          data: cumSpendData,
+          backgroundColor: 'rgba(245,158,11,0.4)',
+          borderColor: '#f59e0b',
+          borderWidth: 1,
+          borderRadius: 4,
+          order: 2
+        },
+        {
+          label: 'Monthly MRR',
+          type: 'line',
+          data: mrrData,
+          borderColor: '#22d3ee',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 3,
+          pointBackgroundColor: '#22d3ee',
+          tension: 0.3,
+          order: 1,
+          yAxisID: 'y1'
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { labels: { color: '#a1b0c8', font: chartFont, boxWidth: 12, padding: 12 }, position: 'top' },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } }
+      },
+      scales: {
+        x: { ticks: { color: '#7a8ba4', font: chartFont }, grid: { color: gridColor } },
+        y: { ticks: { color: '#7a8ba4', font: chartFont, callback: v => fmt(v) }, grid: { color: gridColor }, position: 'left' },
+        y1: { ticks: { color: '#22d3ee', font: chartFont, callback: v => fmt(v) }, grid: { display: false }, position: 'right' }
+      }
+    }
+  });
+
+  // Table
+  let html = '';
+  for (const m of months) {
+    html += '<tr>';
+    html += '<td class="col-month">Month ' + m.month + '</td>';
+    html += '<td class="col-cpr">$' + m.cpr.toFixed(2) + '</td>';
+    html += '<td class="col-regs">' + m.regs.toLocaleString() + '</td>';
+    html += '<td>' + m.att + '</td>';
+    html += '<td class="col-meetings">' + m.meetings.toFixed(1) + '</td>';
+    html += '<td class="col-clients">' + m.newClients.toFixed(1) + '</td>';
+    html += '<td class="col-spend">' + fmt(m.spend) + '</td>';
+    html += '<td class="col-cum-clients">' + Math.round(m.activeClients) + '</td>';
+    html += '<td class="col-mrr">' + fmt(m.mrr) + '</td>';
+    html += '<td class="col-cum-rev">' + fmt(m.cumRevenue) + '</td>';
+    html += '</tr>';
+  }
+  // Totals row
+  html += '<tr class="total-row">';
+  html += '<td class="col-month">TOTAL</td>';
+  html += '<td class="col-cpr">$' + (totalSpend / months.reduce((s,m) => s+m.regs, 0)).toFixed(2) + ' avg</td>';
+  html += '<td class="col-regs">' + months.reduce((s,m) => s+m.regs, 0).toLocaleString() + '</td>';
+  html += '<td>' + months.reduce((s,m) => s+m.att, 0).toLocaleString() + '</td>';
+  html += '<td class="col-meetings">' + months.reduce((s,m) => s+m.meetings, 0).toFixed(0) + '</td>';
+  html += '<td class="col-clients">' + Math.round(totalNewClients) + '</td>';
+  html += '<td class="col-spend">' + fmt(totalSpend) + '</td>';
+  html += '<td class="col-cum-clients">' + Math.round(months[11].activeClients) + '</td>';
+  html += '<td class="col-mrr">' + fmt(finalMRR) + '</td>';
+  html += '<td class="col-cum-rev">' + fmt(cumRevenue) + '</td>';
+  html += '</tr>';
+
+  $('tbl-body').innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>
