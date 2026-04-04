@@ -183,12 +183,13 @@
         <tr>
           <th>Month</th>
           <th>CPR</th>
+          <th>Funnel Maturity</th>
           <th>Regs</th>
           <th>Attendees</th>
           <th>Meetings</th>
           <th>New Clients</th>
           <th>Ad Spend</th>
-          <th>Total Active Clients</th>
+          <th>Active Clients</th>
           <th>Monthly MRR</th>
           <th>Cumulative Revenue</th>
         </tr>
@@ -218,10 +219,27 @@ function fmt(n) {
 
 // Steep exponential decay: most drop in first 3-4 months, flattens out
 function cprAtMonth(month, startCPR, endCPR) {
-  // month is 1-based. k controls steepness.
   const k = 0.35;
-  const t = month - 1; // 0-indexed for formula
+  const t = month - 1;
   return endCPR + (startCPR - endCPR) * Math.exp(-k * t);
+}
+
+// Meeting rate ramp-up: new ad accounts don't produce meetings immediately.
+// Month 1: ~0% of target (building pixel data, no pipeline yet)
+// Month 2: ~8% (maybe 1 lucky booking)
+// Month 3: ~25% (first meetings trickling in)
+// Month 4: ~50%
+// Month 5: ~75%
+// Month 6: ~90%
+// Month 7+: ~100% of target rate
+function meetingRamp(month) {
+  if (month <= 1) return 0.0;
+  if (month <= 2) return 0.08;
+  // Smooth S-curve ramp from month 2 to month 7
+  const t = (month - 2) / 5; // 0 at month 2, 1 at month 7
+  const clamped = Math.min(t, 1);
+  // Smooth-step: 3t² - 2t³
+  return clamped * clamped * (3 - 2 * clamped);
 }
 
 let cprChart = null;
@@ -256,10 +274,14 @@ function render() {
 
   for (let m = 1; m <= 12; m++) {
     const cpr = cprAtMonth(m, cprStart, cprEnd);
+    const ramp = meetingRamp(m);
+    const effectiveAMR = amr * ramp;
+    const effectiveNAMR = namr * ramp;
+
     const regs = Math.floor(budget / cpr);
     const att = Math.round(regs * attend);
     const nonAtt = regs - att;
-    const meetings = att * amr + nonAtt * namr;
+    const meetings = att * effectiveAMR + nonAtt * effectiveNAMR;
     const newClients = meetings * close;
 
     totalSpend += budget;
@@ -269,7 +291,7 @@ function render() {
     cumRevenue += mrr;
 
     months.push({
-      month: m, cpr, regs, att, meetings, newClients,
+      month: m, cpr, regs, att, meetings, newClients, ramp,
       spend: budget, totalSpend, activeClients, mrr, cumRevenue
     });
   }
@@ -390,9 +412,13 @@ function render() {
   // Table
   let html = '';
   for (const m of months) {
+    const rampPct = Math.round(m.ramp * 100);
+    const rampLabel = rampPct === 0 ? 'Building' : rampPct < 100 ? rampPct + '%' : 'Full';
+    const rampColor = rampPct === 0 ? 'var(--danger-light)' : rampPct < 50 ? 'var(--accent-light)' : rampPct < 100 ? 'var(--primary-light)' : 'var(--success-light)';
     html += '<tr>';
     html += '<td class="col-month">Month ' + m.month + '</td>';
     html += '<td class="col-cpr">$' + m.cpr.toFixed(2) + '</td>';
+    html += '<td style="color:' + rampColor + ';font-weight:600;">' + rampLabel + '</td>';
     html += '<td class="col-regs">' + m.regs.toLocaleString() + '</td>';
     html += '<td>' + m.att + '</td>';
     html += '<td class="col-meetings">' + m.meetings.toFixed(1) + '</td>';
@@ -407,6 +433,7 @@ function render() {
   html += '<tr class="total-row">';
   html += '<td class="col-month">TOTAL</td>';
   html += '<td class="col-cpr">$' + (totalSpend / months.reduce((s,m) => s+m.regs, 0)).toFixed(2) + ' avg</td>';
+  html += '<td style="color:var(--success-light);font-weight:600;">—</td>';
   html += '<td class="col-regs">' + months.reduce((s,m) => s+m.regs, 0).toLocaleString() + '</td>';
   html += '<td>' + months.reduce((s,m) => s+m.att, 0).toLocaleString() + '</td>';
   html += '<td class="col-meetings">' + months.reduce((s,m) => s+m.meetings, 0).toFixed(0) + '</td>';
