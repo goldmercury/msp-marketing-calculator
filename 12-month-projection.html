@@ -281,11 +281,11 @@ function render() {
     const att = Math.round(regs * attend);
     const nonAtt = regs - att;
     const meetings = att * effectiveAMR + nonAtt * effectiveNAMR;
-    const newClients = meetings * close;
+    const newClients = Math.round(meetings * close); // whole clients only
 
     totalSpend += budget;
     totalNewClients += newClients;
-    activeClients += newClients; // all clients still active within 12 months
+    activeClients += newClients;
     const mrr = activeClients * mcv;
     cumRevenue += mrr;
 
@@ -421,9 +421,9 @@ function render() {
     html += '<td class="col-regs">' + m.regs.toLocaleString() + '</td>';
     html += '<td>' + m.att + '</td>';
     html += '<td class="col-meetings">' + m.meetings.toFixed(1) + '</td>';
-    html += '<td class="col-clients">' + m.newClients.toFixed(1) + '</td>';
+    html += '<td class="col-clients">' + m.newClients + '</td>';
     html += '<td class="col-spend">' + fmt(m.spend) + '</td>';
-    html += '<td class="col-cum-clients">' + Math.round(m.activeClients) + '</td>';
+    html += '<td class="col-cum-clients">' + m.activeClients + '</td>';
     html += '<td class="col-mrr">' + fmt(m.mrr) + '</td>';
     html += '<td class="col-cum-rev">' + fmt(m.cumRevenue) + '</td>';
     html += '</tr>';
@@ -436,9 +436,9 @@ function render() {
   html += '<td class="col-regs">' + months.reduce((s,m) => s+m.regs, 0).toLocaleString() + '</td>';
   html += '<td>' + months.reduce((s,m) => s+m.att, 0).toLocaleString() + '</td>';
   html += '<td class="col-meetings">' + months.reduce((s,m) => s+m.meetings, 0).toFixed(0) + '</td>';
-  html += '<td class="col-clients">' + Math.round(totalNewClients) + '</td>';
+  html += '<td class="col-clients">' + totalNewClients + '</td>';
   html += '<td class="col-spend">' + fmt(totalSpend) + '</td>';
-  html += '<td class="col-cum-clients">' + Math.round(months[11].activeClients) + '</td>';
+  html += '<td class="col-cum-clients">' + months[11].activeClients + '</td>';
   html += '<td class="col-mrr">' + fmt(finalMRR) + '</td>';
   html += '<td class="col-cum-rev">' + fmt(cumRevenue) + '</td>';
   html += '</tr>';
